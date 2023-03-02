@@ -93,6 +93,8 @@
 
 
 int main() {
-	ConnectionListener server = ConnectionListener();
+	ConnectionListener server;
 	server.Listen();
 }
+
+

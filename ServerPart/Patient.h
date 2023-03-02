@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
+
 enum class State {
+	UNDEFIEND,
 	REGULAR,
 	MEDIUM,
-	CRITICAL,
-	UNDEFIEND
+	CRITICAL
 };
 class Patient
 {
@@ -23,10 +24,9 @@ public:
 	std::string GetLastname() const { return _lastname; }
 	std::string GetPatronymic() const { return _patronymic; }
 	State GetState() const { return _state; }
-	std::string Convert();
-	static Patient Reconvert(std::string str);
-	bool IsNormal() {
-		return true;
+	bool operator>(const Patient& p) const {
+		if (this->_state > p.GetState()) return true;
+		else return false;
 	}
 	virtual ~Patient() {}
 };
@@ -41,11 +41,20 @@ public:
 		State state,
 		size_t moneyAmount = 100) : Patient(firstname, lastname, patronymic, state), _moneyAmount(moneyAmount) {
 	}
-	size_t GetMoney() { return _moneyAmount; }
-	bool IsNormal() {
-		return false;
+	size_t GetMoney() const { return _moneyAmount; }
+	bool operator>(const Patient& p) const {
+		if (this->_state < p.GetState()) return false;
+		else return true;
+	}
+	bool operator>(const VIP_Patient& p) const{
+		if (this->_state > p.GetState()) return true;
+		else if (this->_state < p.GetState()) return false;
+		else if (this->_moneyAmount > p.GetMoney()) return true;
+		else return false;
 	}
 };
 
 
 
+
+	

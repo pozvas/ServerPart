@@ -2,31 +2,38 @@
 #pragma comment(lib, "ws2_32.lib") 
 #include <winsock2.h> 
 #include <iostream>
+#include "DataHandler.h"
+#include "PatientRepository.h"
 
 #pragma warning(disable: 4996)
 
+struct FunctionArg {
+    SOCKET* connection;
+    PatientRepository* repository;
+};
 
 class ConnectionListener
 {
 private:
+    PatientRepository _repository;
 	SOCKET _connections[100];
     SOCKET _serverSoket;
 	int _counter; 
     SOCKADDR_IN _addr; 
     int _sizeOfAddr;
 
-    static void ClientHandler(SOCKET* connection) {
+    static void ClientHandler(FunctionArg* args) {
         int msg_size;
         while (true) {
-            recv(*connection, (char*)&msg_size, sizeof(int), NULL);
+            recv(*args->connection, (char*)&msg_size, sizeof(int), NULL);
             char* msg = new char[msg_size + 1];
             msg[msg_size] = '\0';
-            recv(*connection, msg, msg_size, NULL);
-
-            char msgResp[] = "OK";
-            msg_size = 3;
-            send(*connection, (char*)&msg_size, sizeof(int), NULL);
-            send(*connection, msgResp, msg_size, NULL);
+            recv(*args->connection, msg, msg_size, NULL);
+            std::string strResp = DataHandler::Packing((*args->repository).GetPatient());
+            char* msgResp = &strResp[0];
+            msg_size = strResp.length();
+            send(*args->connection, (char*)&msg_size, sizeof(int), NULL);
+            send(*args->connection, msgResp, msg_size, NULL);
 
             delete[] msg;
         }
@@ -69,7 +76,8 @@ public:
 
                 _connections[i] = newConnection;
                 _counter++;
-                CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandler, (LPVOID)&_connections[i], NULL, NULL);
+                FunctionArg args = { &_connections[i], &_repository };
+                CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandler, (LPVOID)&args, NULL, NULL);
             }
         }
 
