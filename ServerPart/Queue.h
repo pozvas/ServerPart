@@ -26,17 +26,26 @@ public:
 		}
 		return false;
 	}
+	// 0 - elem 0
 	bool PriorityPush(const T& elem) {
 		if (!IsFull()) {
-			int i = _lastInd - 1;
-			while (i != _firstInd) {
-				if (i < 0) i = _size - 1;
-				if (elem > _data[i]) {
-					_data[(i + 1) % _size] = _data[i];
-					i--;
+			int i;
+			if (_countElem) {
+				i = _lastInd - 1;
+				while (i != _firstInd - 1) {
+					if (i < 0) i = _size - 1;
+					if (elem > _data[i]) {
+						_data[(i + 1) % _size] = _data[i];
+						i--;
+					}
+					else {
+						break;
+					}
 				}
-				else break;
+				i++;
 			}
+			else
+				i = 0;
 			_data[i] = elem;
 			_lastInd = (_lastInd + 1) % _size;
 			_countElem++;

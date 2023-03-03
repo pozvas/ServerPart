@@ -8,39 +8,54 @@
 #pragma warning(disable: 4996)
 
 struct FunctionArg {
-    SOCKET* connection;
+    SOCKET connection;
     PatientRepository* repository;
 };
+
+struct FunctionArgTest {
+    SOCKET* connections;
+    int index;
+};
+
+
 
 class ConnectionListener
 {
 private:
-    PatientRepository _repository;
+    
 	SOCKET _connections[100];
     SOCKET _serverSoket;
 	int _counter; 
     SOCKADDR_IN _addr; 
     int _sizeOfAddr;
 
-    static void ClientHandler(FunctionArg* args) {
+    static void ClientHandler(SOCKET connection) {
         int msg_size;
         while (true) {
-            recv(*args->connection, (char*)&msg_size, sizeof(int), NULL);
+            recv(connection, (char*)&msg_size, sizeof(int), NULL);
             char* msg = new char[msg_size + 1];
             msg[msg_size] = '\0';
-            recv(*args->connection, msg, msg_size, NULL);
-            std::string strResp = DataHandler::Packing((*args->repository).GetPatient());
-            char* msgResp = &strResp[0];
-            msg_size = strResp.length();
-            send(*args->connection, (char*)&msg_size, sizeof(int), NULL);
-            send(*args->connection, msgResp, msg_size, NULL);
-
+            recv(connection, msg, msg_size, NULL);
+            std::string msgResp;
+            try {
+                msgResp = DataHandler::Packing(repository.GetPatient());
+                std::cout << msgResp << std::endl;
+            }
+            catch (std::out_of_range) {
+                msgResp = "Queue is empty";
+            }
+            msg_size = msgResp.length();
+            send(connection, (char*)&msg_size, sizeof(int), NULL);
+            send(connection, msgResp.c_str(), msg_size, NULL);
             delete[] msg;
         }
     }
 
+    
 
 public:
+    static PatientRepository repository;
+
     ConnectionListener() : _counter(0) {
         WSAData wsaData;
         WORD DLLVersion = MAKEWORD(2, 2);
@@ -76,12 +91,16 @@ public:
 
                 _connections[i] = newConnection;
                 _counter++;
-                FunctionArg args = { &_connections[i], &_repository };
-                CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandler, (LPVOID)&args, NULL, NULL);
+                /*FunctionArg args = { _connections[i], &_repository };
+                CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandler, (LPVOID)&args, NULL, NULL);*/
+                //FunctionArgTest args = { _connections, i };
+                CreateThread(NULL, NULL, (LPTHREAD_START_ROUTINE)ClientHandler, (LPVOID)(_connections[i]), NULL, NULL);
             }
         }
 
     }
 
 };
+
+
 

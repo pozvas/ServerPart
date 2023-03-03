@@ -1,6 +1,7 @@
 ﻿//#pragma comment(lib, "ws2_32.lib") // доступ к функционалу
 //#include <winsock2.h> // Библиотека для работы с сетью (2 версия)
 //#include <iostream>
+//#include "ConnectionListener.h"
 //
 //
 //
@@ -91,8 +92,10 @@
 
 #include "ConnectionListener.h"
 
+PatientRepository ConnectionListener::repository;
 
 int main() {
+	
 	ConnectionListener server;
 	server.Listen();
 }
