@@ -27,6 +27,30 @@ public:
 		return false;
 	}
 	// 0 - elem 0
+	bool StartPush(const T& elem) {
+		if (!IsFull()) {
+			int i;
+			if (_countElem) {
+				i = _lastInd - 1;
+				while (i != _firstInd - 1) {
+					if (i < 0)
+						i = _size - 1;
+					_data[(i + 1) % _size] = _data[i];
+					i--;
+				}
+				i++;
+			}
+			else
+				i = 0;
+			_data[i] = elem;
+			_lastInd = (_lastInd + 1) % _size;
+			_countElem++;
+			return true;
+		}
+		else
+			return false;
+	}
+
 	bool PriorityPush(const T& elem) {
 		if (!IsFull()) {
 			int i;
@@ -57,6 +81,10 @@ public:
 		const T& elem = _data[_firstInd];
 		_firstInd = (_firstInd + 1) % _size;
 		_countElem--;
+		return elem;
+	}
+	const T Top() const{
+		const T& elem = _data[_firstInd];
 		return elem;
 	}
 	bool IsEmpty() const{

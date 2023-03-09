@@ -7,9 +7,9 @@
 class PatientRepository
 {
 private:
-	/*Queue<Patient> _regularPatients;
-	Queue<VIP_Patient> _vipPatients;*/
-	Queue<Patient> _patients;
+	Queue<Patient> _regularPatients;
+	Queue<VIP_Patient> _vipPatients;
+	//Queue<Patient> _patients;
 public:
 	PatientRepository() {
 		VIP_Patient p1 = VIP_Patient("name1", "surname1", "patromymic1", State::REGULAR, 10000);
@@ -22,17 +22,47 @@ public:
 		AddPatient(p4);
 	}
 	Patient GetPatient() {
-		if (!_patients.IsEmpty())
+		/*if (!_patients.IsEmpty())
 			return _patients.Pop();
+		else
+			throw std::out_of_range("Queue is empty");*/
+
+		if (!_vipPatients.IsEmpty()) {
+			if (!_regularPatients.IsEmpty() && _regularPatients.Top().GetState() == State::CRITICAL 
+				&& _vipPatients.Top().GetState() != State::CRITICAL)
+				return _regularPatients.Pop();
+			else
+				return _vipPatients.Pop();
+		}
+		else if (!_regularPatients.IsEmpty()) {
+			return _regularPatients.Pop();
+		}
 		else
 			throw std::out_of_range("Queue is empty");
 	}
 	void AddPatient(Patient& patient) {
-		//if(dynamic_cast<VIP_Patient*>(&patient) == nullptr)
-		if (!_patients.IsFull())
-			_patients.PriorityPush(patient);
-		else
-			throw std::overflow_error("Queue is full");
+		/*if (patient.GetState() == State::CRITICAL) {
+			if (!_patients.StartPush(patient))
+				throw std::overflow_error("Queue is full");
+		}
+		else {
+			if (dynamic_cast<VIP_Patient*>(&patient) == nullptr) {
+				if (!_patients.PriorityPush(patient))
+					throw std::overflow_error("Queue is full");
+			}
+			else {
+				if (!_patients.Push(patient))
+					throw std::overflow_error("Queue is full");
+			}
+		}*/
+		VIP_Patient* castPatient = dynamic_cast<VIP_Patient*>(&patient);
+		if (castPatient != nullptr) {
+			_vipPatients.PriorityPush(*castPatient);
+		}
+		else {
+			_regularPatients.PriorityPush(patient);
+		}
+
 		
 	}
 };
