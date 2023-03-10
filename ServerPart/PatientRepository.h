@@ -57,10 +57,12 @@ public:
 		}*/
 		VIP_Patient* castPatient = dynamic_cast<VIP_Patient*>(&patient);
 		if (castPatient != nullptr) {
-			_vipPatients.PriorityPush(*castPatient);
+			if(!_vipPatients.PriorityPush(*castPatient))
+				throw std::overflow_error("Queue is full");
 		}
 		else {
-			_regularPatients.PriorityPush(patient);
+			if(!_regularPatients.PriorityPush(patient))
+				throw std::overflow_error("Queue is full");
 		}
 
 		

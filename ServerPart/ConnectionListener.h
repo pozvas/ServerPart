@@ -33,14 +33,18 @@ private:
         ALREADYENTER
     };
     static void ClientHandler(int index) {
-        int msg_size;
+        int msg_size = -1;
         Message buf;
         std::string msgResp;
         while (true) {
-            recv(_connections[index], (char*)&buf, sizeof(Message), NULL);
+            int a = recv(_connections[index], (char*)&buf, sizeof(Message), NULL);
+            if (a == -1) {
+                std::cout << "Client " << index << " disconnected\n";
+                break;
+            }
             switch (buf) {
                 case(Message::LOGIN):{
-                    recv(_connections[index], (char*)&msg_size, sizeof(int), NULL);
+                    int c = recv(_connections[index], (char*)&msg_size, sizeof(int), NULL);
                     char* login = new char[msg_size + 1];
                     login[msg_size] = '\0';
                     recv(_connections[index], login, msg_size, NULL);
@@ -129,6 +133,7 @@ public:
 
     void Listen() {
         listen(_serverSoket, SOMAXCONN);
+        std::cout << "Server is working\n";
         SOCKET newConnection;
         for (int i = 0; i < 100; i++) {
             newConnection = accept(_serverSoket, (SOCKADDR*)&_addr, &_sizeOfAddr);
