@@ -132,7 +132,7 @@
     <ClCompile Include="Patient.cpp" />
     <ClCompile Include="PatientRepository.cpp" />
     <ClCompile Include="Queue.cpp" />
-    <ClCompile Include="ServerPart.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConnectionListener.h" />
